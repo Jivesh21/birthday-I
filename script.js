@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
   initScrollReveal();
   initCountdown('July 22');
+  initDailyNotes('July 22');
+  initLetterLock('July 22');
+  initBdayExperience('July 22');
   initOpenSurpriseButton();
   initMusicPlayer();
   initGallery();
@@ -221,6 +224,431 @@ function initCountdown(targetDateStr) {
 
   tick();
   const interval = setInterval(tick, 1000);
+}
+
+/* Shared helper: returns whole days remaining until the next occurrence of
+   a "Month Day" string (e.g. "July 22"), and whether today IS that day. */
+function getDaysUntil(targetDateStr) {
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let target = new Date(`${targetDateStr} ${now.getFullYear()}`);
+  target = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+
+  const isToday = target.getTime() === todayMidnight.getTime();
+  if (target < todayMidnight && !isToday) {
+    target = new Date(now.getFullYear() + 1, target.getMonth(), target.getDate());
+  }
+  const diffDays = Math.round((target - todayMidnight) / (1000 * 60 * 60 * 24));
+  return { daysLeft: diffDays, isToday };
+}
+
+/* ---------------- DAILY LOVE NOTE ---------------- */
+function initDailyNotes(targetDateStr) {
+  const grid = document.getElementById('dailyNotesGrid');
+  if (!grid) return;
+
+  // Add or edit these freely — one unlocks per day, counting down to the big day.
+  const notes = [
+    'Day 14 to go: Just so you know, you crossed my mind today. Like always.',
+    'Day 13 to go: I hope today treated you gently.',
+    'Day 12 to go: Something about you always makes ordinary days better.',
+    'Day 11 to go: I\'m already excited for your birthday. Can you tell?',
+    'Day 10 to go: You deserve every good thing headed your way.',
+    'Day 9 to go: Ten days feels both too long and too short.',
+    'Day 8 to go: I keep thinking about how lucky I am.',
+    'Day 7 to go: One week left. My heart\'s already celebrating.',
+    'Day 6 to go: You make the wait worth it.',
+    'Day 5 to go: I hope you feel loved today, not just on the day itself.',
+    'Day 4 to go: Almost there. Can you feel the excitement?',
+    'Day 3 to go: Three days. I can barely wait.',
+    'Day 2 to go: So close now. Get ready.',
+    'Day 1 to go: Tomorrow is your day. I hope it\'s everything you deserve.'
+  ];
+
+  const { daysLeft } = getDaysUntil(targetDateStr);
+  // unlockedFromStart = how many notes should be visible right now.
+  // Notes unlock one by one as daysLeft counts down toward 0.
+  const unlockedCount = Math.max(0, notes.length - Math.max(daysLeft, 0));
+
+  grid.innerHTML = '';
+  notes.forEach((note, i) => {
+    const isUnlocked = i < unlockedCount;
+    const isUnlockedToday = i === unlockedCount - 1 && isUnlocked;
+
+    const card = document.createElement('div');
+    card.className = 'daily-note-card' + (isUnlocked ? '' : ' locked') + (isUnlockedToday ? ' unlocked-today' : '');
+
+    const dayLabel = document.createElement('p');
+    dayLabel.className = 'day-label';
+    dayLabel.textContent = `Note ${i + 1} of ${notes.length}`;
+    card.appendChild(dayLabel);
+
+    if (!isUnlocked) {
+      const lockBadge = document.createElement('span');
+      lockBadge.className = 'lock-badge';
+      lockBadge.textContent = '🔒';
+      card.appendChild(lockBadge);
+    }
+
+    const text = document.createElement('p');
+    text.className = 'note-text';
+    text.textContent = isUnlocked ? note : note; // real text kept in DOM; CSS blurs + shows teaser text for locked cards
+    card.appendChild(text);
+
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- LETTER LOCK (unlocks on the birthday) ---------------- */
+function initLetterLock(targetDateStr) {
+  const paper = document.getElementById('letterPaper');
+  const overlay = document.getElementById('letterLockOverlay');
+  const countdownText = document.getElementById('letterLockCountdown');
+  if (!paper || !overlay) return;
+
+  const { daysLeft, isToday } = getDaysUntil(targetDateStr);
+
+  if (isToday) {
+    paper.classList.remove('is-locked');
+    overlay.classList.remove('show');
+  } else {
+    paper.classList.add('is-locked');
+    overlay.classList.add('show');
+    countdownText.textContent = daysLeft === 1
+      ? 'Unlocks in 1 day ❤️'
+      : `Unlocks in ${daysLeft} days ❤️`;
+  }
+}
+
+/* =========================================================
+   BIRTHDAY EXPERIENCE — full multi-stage sequence, visible
+   only on July 22. Everything below is skipped/hidden on
+   any other day.
+   ========================================================= */
+function initBdayExperience(targetDateStr) {
+  const teaser = document.getElementById('bdayTeaser');
+  const stagesWrap = document.getElementById('bdayStages');
+  if (!teaser || !stagesWrap) return;
+
+  // Preview mode: visiting the page with ?preview=true unlocks the full
+  // experience regardless of date, for testing. The real link you share
+  // (without ?preview=true) still respects the actual July 22 lock.
+  const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+
+  const { daysLeft, isToday } = getDaysUntil(targetDateStr);
+  const unlocked = isToday || isPreview;
+
+  if (!unlocked) {
+    teaser.classList.remove('hidden');
+    stagesWrap.classList.add('hidden');
+    const countdownEl = document.getElementById('bdayTeaserCountdown');
+    countdownEl.textContent = daysLeft === 1
+      ? 'Come back tomorrow — July 22nd. ❤️'
+      : `Come back in ${daysLeft} days — July 22nd. ❤️`;
+    return;
+  }
+
+  // Unlocked (either it's the real day, or preview mode) — reveal the full experience.
+  teaser.classList.add('hidden');
+  stagesWrap.classList.remove('hidden');
+
+  if (isPreview && !isToday) {
+    const banner = document.createElement('div');
+    banner.className = 'preview-banner';
+    banner.textContent = '👀 Preview mode — this is only visible to you because of ?preview=true in the URL';
+    stagesWrap.prepend(banner);
+  }
+
+  function goToStage(stageId) {
+    document.querySelectorAll('.stage').forEach((s) => s.classList.remove('active'));
+    const next = document.getElementById(stageId);
+    if (next) next.classList.add('active');
+    duckMusicForTransition();
+  }
+
+  setupCandleStage(() => goToStage('stage-gift'));
+  setupGiftStage(() => goToStage('stage-pop-balloons'));
+  setupBalloonPopStage(() => goToStage('stage-heart-game'));
+  setupHeartGameStage(() => goToStage('stage-letter-reveal'));
+  setupLetterRevealStage(() => goToStage('stage-sky-finale'));
+  setupSkyFinaleStage();
+}
+
+/* Gently dips music volume down and back up on every stage change,
+   giving a sense of "transition" without needing separate audio files.
+   If you add more tracks later (assets/music/stage2.mp3 etc.), this is
+   the function to extend with an actual track swap. */
+function duckMusicForTransition() {
+  const audio = document.getElementById('bgMusic');
+  if (!audio || audio.paused) return;
+  const original = audio.volume;
+  const duck = (v) => (audio.volume = Math.max(0, Math.min(1, v)));
+  let steps = 0;
+  const fadeOut = setInterval(() => {
+    steps++;
+    duck(original - (original * steps) / 6);
+    if (steps >= 6) {
+      clearInterval(fadeOut);
+      let stepsBack = 0;
+      const fadeIn = setInterval(() => {
+        stepsBack++;
+        duck((original * stepsBack) / 6);
+        if (stepsBack >= 6) clearInterval(fadeIn);
+      }, 90);
+    }
+  }, 90);
+}
+
+/* ---- Stage 1: Blow out the candle (microphone volume detection) ---- */
+function setupCandleStage(onComplete) {
+  const candle = document.getElementById('stageCandle');
+  const flame = document.getElementById('stageFlame');
+  const meterFill = document.getElementById('micMeterFill');
+  const statusText = document.getElementById('micStatus');
+  const manualBtn = document.getElementById('manualBlowBtn');
+  let done = false;
+
+  function blowOutCandle() {
+    if (done) return;
+    done = true;
+    candle.classList.add('blown-out');
+    statusText.textContent = 'Nice blow! 🎉';
+    setTimeout(onComplete, 1200);
+  }
+
+  manualBtn.addEventListener('click', blowOutCandle);
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    statusText.textContent = 'Microphone not supported here — use the button below.';
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then((stream) => {
+      statusText.textContent = 'Blow into your mic now… 🎤';
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      source.connect(analyser);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+
+      let sustainedFrames = 0;
+      const BLOW_THRESHOLD = 55; // tweak if too sensitive/insensitive
+      const FRAMES_NEEDED = 5;
+
+      function checkVolume() {
+        if (done) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        analyser.getByteFrequencyData(data);
+        const avg = data.reduce((a, b) => a + b, 0) / data.length;
+        meterFill.style.width = Math.min(100, (avg / 80) * 100) + '%';
+
+        if (avg > BLOW_THRESHOLD) {
+          sustainedFrames++;
+          if (sustainedFrames >= FRAMES_NEEDED) {
+            stream.getTracks().forEach((t) => t.stop());
+            blowOutCandle();
+            return;
+          }
+        } else {
+          sustainedFrames = 0;
+        }
+        requestAnimationFrame(checkVolume);
+      }
+      checkVolume();
+    })
+    .catch(() => {
+      statusText.textContent = 'Microphone access denied — no problem, tap the button below instead.';
+    });
+}
+
+/* ---- Stage 2: Gift box opens on click ---- */
+function setupGiftStage(onComplete) {
+  const box = document.getElementById('giftBox');
+  const message = document.getElementById('giftMessage');
+  const continueBtn = document.getElementById('giftContinueBtn');
+  let opened = false;
+
+  box.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+    box.classList.add('opened');
+    message.classList.remove('hidden');
+    continueBtn.classList.remove('hidden');
+  });
+
+  continueBtn.addEventListener('click', onComplete);
+}
+
+/* ---- Stage 3: Pop every balloon ---- */
+function setupBalloonPopStage(onComplete) {
+  const field = document.getElementById('popBalloonsField');
+  const continueBtn = document.getElementById('balloonsContinueBtn');
+  const subtitle = document.getElementById('popBalloonsSubtitle');
+  const colors = ['#ff6fa5', '#8e6fff', '#f6c667', '#ff9ec4', '#7fd8ff'];
+  const total = 8;
+  let popped = 0;
+
+  field.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const b = document.createElement('div');
+    b.className = 'pop-balloon';
+    b.style.left = Math.random() * 85 + '%';
+    b.style.top = Math.random() * 70 + '%';
+    b.style.background = `radial-gradient(circle at 30% 30%, #fff8, ${colors[i % colors.length]})`;
+    b.addEventListener('click', () => {
+      if (b.classList.contains('popped')) return;
+      b.classList.add('popped');
+      popped++;
+      subtitle.textContent = `${popped} of ${total} popped 🎈`;
+      if (popped >= total) continueBtn.classList.remove('hidden');
+    });
+    field.appendChild(b);
+  }
+
+  continueBtn.addEventListener('click', onComplete);
+}
+
+/* ---- Stage 4: Heart-catching mini game ---- */
+function setupHeartGameStage(onComplete) {
+  const canvas = document.getElementById('heartGameCanvas');
+  const ctx = canvas.getContext('2d');
+  const startBtn = document.getElementById('heartGameStartBtn');
+  const continueBtn = document.getElementById('heartGameContinueBtn');
+  const scoreEl = document.getElementById('heartGameScore');
+  const timerEl = document.getElementById('heartGameTimer');
+
+  let basketX = 0;
+  let hearts = [];
+  let score = 0;
+  let timeLeft = 20;
+  let running = false;
+  let gameInterval, spawnInterval;
+
+  function resize() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    basketX = canvas.width / 2;
+  }
+  window.addEventListener('resize', resize);
+
+  function pointerMove(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    basketX = Math.max(20, Math.min(canvas.width - 20, clientX - rect.left));
+  }
+  canvas.addEventListener('mousemove', (e) => pointerMove(e.clientX));
+  canvas.addEventListener('touchmove', (e) => {
+    if (e.touches[0]) pointerMove(e.touches[0].clientX);
+  }, { passive: true });
+
+  function spawnHeart() {
+    hearts.push({ x: Math.random() * (canvas.width - 20) + 10, y: -10, speed: 1.5 + Math.random() * 2 });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // basket
+    ctx.font = '32px sans-serif';
+    ctx.fillText('🧺', basketX - 16, canvas.height - 10);
+    // hearts
+    ctx.font = '22px sans-serif';
+    hearts.forEach((h) => ctx.fillText('❤️', h.x - 11, h.y));
+  }
+
+  function tick() {
+    hearts.forEach((h) => (h.y += h.speed));
+    hearts = hearts.filter((h) => {
+      const caught = h.y > canvas.height - 40 && h.y < canvas.height && Math.abs(h.x - basketX) < 28;
+      if (caught) {
+        score++;
+        scoreEl.textContent = `Score: ${score}`;
+        return false;
+      }
+      return h.y < canvas.height + 20;
+    });
+    draw();
+    if (running) requestAnimationFrame(tick);
+  }
+
+  function startGame() {
+    resize();
+    score = 0; timeLeft = 20; hearts = [];
+    scoreEl.textContent = 'Score: 0';
+    timerEl.textContent = 'Time: 20s';
+    startBtn.classList.add('hidden');
+    continueBtn.classList.add('hidden');
+    running = true;
+    tick();
+    spawnInterval = setInterval(spawnHeart, 550);
+    gameInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = `Time: ${timeLeft}s`;
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function endGame() {
+    running = false;
+    clearInterval(spawnInterval);
+    clearInterval(gameInterval);
+    timerEl.textContent = 'Time: 0s';
+    continueBtn.classList.remove('hidden');
+  }
+
+  startBtn.addEventListener('click', startGame);
+  continueBtn.addEventListener('click', onComplete);
+}
+
+/* ---- Stage 5: Reveal the letter ---- */
+function setupLetterRevealStage(onComplete) {
+  const goToLetterBtn = document.getElementById('goToLetterBtn');
+  const continueBtn = document.getElementById('letterContinueBtn');
+
+  goToLetterBtn.addEventListener('click', () => {
+    const letterSection = document.getElementById('letter');
+    if (letterSection) letterSection.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  continueBtn.addEventListener('click', onComplete);
+}
+
+/* ---- Stage 6: Night sky finale with glowing text among stars ---- */
+function setupSkyFinaleStage() {
+  const canvas = document.getElementById('skyCanvas');
+  const ctx = canvas.getContext('2d');
+  const scene = document.getElementById('skyScene');
+  let stars = [];
+
+  function resize() {
+    canvas.width = scene.clientWidth;
+    canvas.height = scene.clientHeight;
+    stars = Array.from({ length: 140 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.6 + 0.4,
+      twinkleSpeed: Math.random() * 0.05 + 0.01,
+      phase: Math.random() * Math.PI * 2
+    }));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = performance.now() * 0.001;
+    stars.forEach((s) => {
+      const alpha = 0.4 + 0.6 * Math.abs(Math.sin(t * s.twinkleSpeed * 10 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
 }
 
 /* ---------------- OPEN SURPRISE BUTTON ---------------- */
