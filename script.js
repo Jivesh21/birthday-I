@@ -1,7 +1,3 @@
-/* =========================================================
-   BIRTHDAY SURPRISE WEBSITE — SCRIPT.JS
-   Modular vanilla JS. Each feature is its own init function.
-   ========================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
   initPreloader();
@@ -247,16 +243,23 @@ function initDailyNotes(targetDateStr) {
   const grid = document.getElementById('dailyNotesGrid');
   if (!grid) return;
 
-  // Add or edit these freely — one unlocks per day, counting down to the big day.
+  // Add or edit these freely — one unlocks per real calendar day, counting
+  // down to the big day. Sized to 18 so it matches the days remaining —
+  // if you deploy this earlier/later, adjust the count to match daysLeft
+  // at the time you deploy, so the last card lands exactly on July 22.
   const notes = [
-    'Day 14 to go: Just so you know, you crossed my mind today. Like always.',
-    'Day 13 to go: I hope today treated you gently.',
-    'Day 12 to go: Something about you always makes ordinary days better.',
-    'Day 11 to go: I\'m already excited for your birthday. Can you tell?',
-    'Day 10 to go: You deserve every good thing headed your way.',
-    'Day 9 to go: Ten days feels both too long and too short.',
-    'Day 8 to go: I keep thinking about how lucky I am.',
-    'Day 7 to go: One week left. My heart\'s already celebrating.',
+    'Day 18 to go: Just so you know, you crossed my mind today. Like always.',
+    'Day 17 to go: I hope today treated you gently.',
+    'Day 16 to go: Something about you always makes ordinary days better.',
+    'Day 15 to go: Eighteen days used to feel so far away. Not anymore.',
+    'Day 14 to go: I keep catching myself smiling for no reason. It\'s you.',
+    'Day 13 to go: I\'m already excited for your birthday. Can you tell?',
+    'Day 12 to go: You deserve every good thing headed your way.',
+    'Day 11 to go: Twelve days feels both too long and too short.',
+    'Day 10 to go: I keep thinking about how lucky I am.',
+    'Day 9 to go: Double digits are almost gone. Ten days, then single digits.',
+    'Day 8 to go: One week and a day left. My heart\'s already celebrating.',
+    'Day 7 to go: One week left. Can you feel it getting closer?',
     'Day 6 to go: You make the wait worth it.',
     'Day 5 to go: I hope you feel loved today, not just on the day itself.',
     'Day 4 to go: Almost there. Can you feel the excitement?',
@@ -266,8 +269,10 @@ function initDailyNotes(targetDateStr) {
   ];
 
   const { daysLeft } = getDaysUntil(targetDateStr);
-  // unlockedFromStart = how many notes should be visible right now.
-  // Notes unlock one by one as daysLeft counts down toward 0.
+  // How many notes should be unlocked right now. Notes unlock one by one,
+  // in order, as daysLeft counts down toward 0 — so on the day you deploy
+  // (with 18 days left), exactly 1 note is unlocked; each day after that,
+  // one more opens, until all 18 are open on July 22 itself.
   const unlockedCount = Math.max(0, notes.length - Math.max(daysLeft, 0));
 
   grid.innerHTML = '';
@@ -288,11 +293,22 @@ function initDailyNotes(targetDateStr) {
       lockBadge.className = 'lock-badge';
       lockBadge.textContent = '🔒';
       card.appendChild(lockBadge);
+
+      // Per-card countdown: exactly how many more days until THIS specific
+      // card unlocks (1 = tomorrow, 2 = the day after, etc.) — not just a
+      // generic "locked" state.
+      const daysUntilThisCard = i - unlockedCount + 1;
+      const countdown = document.createElement('p');
+      countdown.className = 'lock-countdown';
+      countdown.textContent = daysUntilThisCard === 1
+        ? 'Unlocks tomorrow'
+        : `Unlocks in ${daysUntilThisCard} days`;
+      card.appendChild(countdown);
     }
 
     const text = document.createElement('p');
     text.className = 'note-text';
-    text.textContent = isUnlocked ? note : note; // real text kept in DOM; CSS blurs + shows teaser text for locked cards
+    text.textContent = note; // real text kept in DOM; CSS blurs + shows a teaser overlay for locked cards
     card.appendChild(text);
 
     grid.appendChild(card);
