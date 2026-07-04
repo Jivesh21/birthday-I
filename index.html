@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday ❤️ | A Surprise Made With Love</title>
+<meta name="description" content="A premium interactive birthday surprise made with love and code.">
+<meta name="theme-color" content="#ff6fa5">
+<meta name="robots" content="noindex, nofollow">
+
+<!-- Open Graph / Social sharing -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Happy Birthday ❤️">
+<meta property="og:description" content="A small interactive surprise made with love and code, just for you.">
+<meta property="og:image" content="assets/images/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Favicons -->
+<link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+<link rel="manifest" href="manifest.json">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Skip link for accessibility -->
+<a href="#hero" class="skip-link">Skip to content</a>
+
+<!-- Preloader -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader-heart">❤</div>
+  <p>Loading something special…</p>
+</div>
+
+<!-- Scroll progress bar -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- Custom cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-heart" id="cursorHeart">❤</div>
+
+<!-- Background layers -->
+<div class="bg-gradient"></div>
+<div class="particles" id="particles"></div>
+
+<!-- Navigation -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#hero" class="nav-logo">B&nbsp;❤️&nbsp;Day</a>
+    <ul class="nav-menu" id="navMenu">
+      <li><a href="#hero" class="nav-link">Home</a></li>
+      <li><a href="#journey" class="nav-link">Our Journey</a></li>
+      <li><a href="#gallery" class="nav-link">Gallery</a></li>
+      <li><a href="#reasons" class="nav-link">Reasons</a></li>
+      <li><a href="#letter" class="nav-link">Letter</a></li>
+      <li><a href="#surprise" class="nav-link">Surprise</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+  <div class="floating-hearts" id="floatingHearts"></div>
+  <div class="hero-content glass-card" data-animate="scale-in">
+    <p class="hero-eyebrow">A little something for you</p>
+    <h1 class="hero-title">Happy Birthday <span class="heart-pulse">❤️</span></h1>
+    <p class="hero-subtitle">A small project made with love and code.</p>
+
+    <div class="countdown" id="countdown" aria-live="polite">
+      <p class="countdown-label">Birthday Countdown</p>
+      <div class="countdown-timer" id="countdownTimer">
+        <div class="time-box"><span id="days">00</span><small>Days</small></div>
+        <div class="time-box"><span id="hours">00</span><small>Hours</small></div>
+        <div class="time-box"><span id="minutes">00</span><small>Minutes</small></div>
+        <div class="time-box"><span id="seconds">00</span><small>Seconds</small></div>
+      </div>
+    </div>
+
+    <div class="hero-buttons">
+      <button class="btn btn-primary ripple" id="openSurpriseBtn">Open Your Surprise ✨</button>
+      <button class="btn btn-outline ripple" id="addToCalendarBtn">📅 Add to Calendar</button>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span></span>
+    <p>Scroll to explore</p>
+  </div>
+</section>
+
+<!-- MUSIC PLAYER -->
+<div class="music-player" id="musicPlayer">
+  <button id="musicToggle" class="music-btn" aria-label="Play music">🎵</button>
+  <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" aria-label="Volume">
+  <audio id="bgMusic" loop preload="none">
+    <source src="./assets/KITAB.Mp3.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<!-- OUR JOURNEY -->
+<section id="journey" class="section journey">
+  <h2 class="section-title" data-animate="fade-up">Our Journey</h2>
+  <p class="section-subtitle" data-animate="fade-up">Every moment, a page in our story.</p>
+
+  <div class="timeline">
+    <div class="timeline-line"></div>
+
+    <div class="timeline-card" data-animate="slide-left">
+      <div class="timeline-icon">☕</div>
+      <div class="timeline-content glass-card">
+        <span class="timeline-date">The Beginning</span>
+        <h3>The Day We Met</h3>
+        <p>Replace this with the story of how it all started — the smallest details usually turn out to matter most.</p>
+      </div>
+    </div>
+
+    <div class="timeline-card" data-animate="slide-right">
+      <div class="timeline-icon">💬</div>
+      <div class="timeline-content glass-card">
+        <span class="timeline-date">First Spark</span>
+        <h3>The First Real Conversation</h3>
+        <p>Talk about the moment you realized this was different from every other conversation.</p>
+      </div>
+    </div>
+
+    <div class="timeline-card" data-animate="slide-left">
+      <div class="timeline-icon">🌆</div>
+      <div class="timeline-content glass-card">
+        <span class="timeline-date">A Milestone</span>
+        <h3>Our First Adventure Together</h3>
+        <p>Describe a trip, a date, or a simple afternoon that became a favorite memory.</p>
+      </div>
+    </div>
+
+    <div class="timeline-card" data-animate="slide-right">
+      <div class="timeline-icon">🎉</div>
+      <div class="timeline-content glass-card">
+        <span class="timeline-date">Today</span>
+        <h3>Here We Are — Celebrating You</h3>
+        <p>And now, on your special day, this whole page exists just to say how much you mean.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="section gallery-section">
+  <h2 class="section-title" data-animate="fade-up">Memory Gallery</h2>
+  <p class="section-subtitle" data-animate="fade-up">A few frames from our story.</p>
+
+  <div class="masonry" id="masonry">
+    <!-- Placeholder images: replace src with real photos -->
+    <figure class="masonry-item" data-animate="fade-up">
+      <img src="./assets/photo1.jpg" alt="Memory 1" loading="lazy">
+      <figcaption>Caption goes here</figcaption>
+    </figure>
+    <figure class="masonry-item" data-animate="fade-up">
+      <img src="./assets/photo2.jpg" alt="Memory 2" loading="lazy">
+      <figcaption>Caption goes here</figcaption>
+    </figure>
+    <figure class="masonry-item" data-animate="fade-up">
+      <img src="./assets/photo3.jpg" alt="Memory 3" loading="lazy">
+      <figcaption>Caption goes here</figcaption>
+    </figure>
+    <figure class="masonry-item" data-animate="fade-up">
+      <img src="./assets/photo4.jpg" alt="Memory 4" loading="lazy">
+      <figcaption>Caption goes here</figcaption>
+    </figure>
+    <figure class="masonry-item" data-animate="fade-up">
+      <img src="./assets/photo5.jpg" alt="Memory 5" loading="lazy">
+      <figcaption>Caption goes here</figcaption>
+    </figure>
+    <figure class="masonry-item" data-animate="fade-up">
+      <img src="./assets/photo6.jpg" alt="Memory 6" loading="lazy">
+      <figcaption>Caption goes here</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous">&#8249;</button>
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQABAAACAUwAOw==" alt="" id="lightboxImg">
+  <p class="lightbox-caption" id="lightboxCaption"></p>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next">&#8250;</button>
+</div>
+
+<!-- REASONS -->
+<section id="reasons" class="section reasons-section">
+  <h2 class="section-title" data-animate="fade-up">Reasons I Love You</h2>
+  <p class="section-subtitle" data-animate="fade-up">Click for a new one anytime.</p>
+
+  <div class="reason-card glass-card" data-animate="scale-in">
+    <div class="reason-quote">❝</div>
+    <p id="reasonText">Click the button to reveal a reason.</p>
+    <button class="btn btn-secondary ripple" id="reasonBtn">Show Another Reason ❤️</button>
+    <p class="reason-counter" id="reasonCounter">0 reasons revealed</p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="section quiz-section">
+  <h2 class="section-title" data-animate="fade-up">Just for Fun — A Little Quiz</h2>
+  <p class="section-subtitle" data-animate="fade-up">How well do you know us?</p>
+
+  <div class="quiz-card glass-card" data-animate="scale-in">
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+    <p class="quiz-progress-text" id="quizProgressText">Question 1 of 5</p>
+
+    <div id="quizBody">
+      <h3 id="quizQuestion" class="quiz-question"></h3>
+      <div class="quiz-options" id="quizOptions"></div>
+    </div>
+
+    <div id="quizResult" class="quiz-result hidden">
+      <div class="quiz-result-emoji" id="quizResultEmoji">🎉</div>
+      <h3 id="quizResultTitle"></h3>
+      <p id="quizResultText"></p>
+      <button class="btn btn-secondary ripple" id="quizRetryBtn">Try Again</button>
+    </div>
+  </div>
+</section>
+
+<!-- LETTER -->
+<section id="letter" class="section letter-section">
+  <h2 class="section-title" data-animate="fade-up">A Letter For You</h2>
+
+  <div class="letter-paper" data-animate="fade-up">
+    <div class="letter-content" id="letterContent">
+      <p class="letter-line" data-typewriter>My Dearest,</p>
+      <p class="letter-line">Replace this paragraph with something real — a memory, a thank you, a promise. Let it type itself out slowly, the way real feelings do.</p>
+      <p class="letter-line">Add a second paragraph here about what today, your birthday, means to you and why they matter so much.</p>
+      <p class="letter-line">A third paragraph, if you like — something about the future, or a wish, or a quiet inside joke only the two of you understand.</p>
+      <p class="letter-signature">With all my love,<br><span class="signature">Your Name</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- SURPRISE -->
+<section id="surprise" class="section surprise-section">
+  <canvas id="confettiCanvas"></canvas>
+  <canvas id="fireworksCanvas"></canvas>
+  <div class="balloons" id="balloons"></div>
+  <div class="floating-hearts" id="surpriseHearts"></div>
+
+  <div class="surprise-content">
+    <div class="cake" aria-hidden="true">
+      <div class="cake-plate"></div>
+      <div class="cake-layer cake-layer-bottom"></div>
+      <div class="cake-layer cake-layer-top"></div>
+      <div class="cake-icing"></div>
+      <div class="cake-candle">
+        <div class="flame"></div>
+      </div>
+    </div>
+
+    <h2 class="surprise-title">Happy Birthday, my love ❤️</h2>
+    <p class="surprise-message">May this year bring you everything you deserve and more — endless joy, quiet peace, and all the little magic moments that make life beautiful. I'm so grateful to celebrate you today.</p>
+
+    <button class="btn btn-love ripple" id="loveBtn">I Love You ❤️</button>
+  </div>
+</section>
+
+<!-- Hidden secret -->
+<div class="secret-overlay" id="secretOverlay">
+  <div class="secret-box glass-card">
+    <button class="secret-close" id="secretClose" aria-label="Close">&times;</button>
+    <p class="secret-emoji">💌</p>
+    <h3>You found the secret.</h3>
+    <p>Just like you found your way into my heart — quietly, and completely. Happy Birthday. I love you more than any hidden message could ever say.</p>
+  </div>
+</div>
+<p class="secret-hint">Type <strong>LOVE</strong> anywhere for a hidden surprise 🤫</p>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+<footer class="footer">
+  <p>Made with ❤️ and code, just for you.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

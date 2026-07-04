@@ -1,0 +1,16 @@
+{
+  "name": "Happy Birthday",
+  "short_name": "Birthday",
+  "description": "A premium interactive birthday surprise made with love and code.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffdde1",
+  "theme_color": "#ff6fa5",
+  "icons": [
+    {
+      "src": "assets/images/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

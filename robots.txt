@@ -1,0 +1,3 @@
+# This is a private, personal page — not meant for search engines.
+User-agent: *
+Disallow: /
