@@ -306,9 +306,11 @@ function initLetterLock(targetDateStr) {
   const countdownText = document.getElementById('letterLockCountdown');
   if (!paper || !overlay) return;
 
+  const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
   const { daysLeft, isToday } = getDaysUntil(targetDateStr);
+  const unlocked = isToday || isPreview;
 
-  if (isToday) {
+  if (unlocked) {
     paper.classList.remove('is-locked');
     overlay.classList.remove('show');
   } else {
@@ -364,6 +366,7 @@ function initBdayExperience(targetDateStr) {
     const next = document.getElementById(stageId);
     if (next) next.classList.add('active');
     duckMusicForTransition();
+    if (stageId === 'stage-sky-finale') sfxChime();
   }
 
   setupCandleStage(() => goToStage('stage-gift'));
@@ -376,27 +379,99 @@ function initBdayExperience(targetDateStr) {
 
 /* Gently dips music volume down and back up on every stage change,
    giving a sense of "transition" without needing separate audio files.
-   If you add more tracks later (assets/music/stage2.mp3 etc.), this is
-   the function to extend with an actual track swap. */
+   Uses a fixed base volume (captured once) and cancels any fade already
+   in progress, so rapid stage changes can't compound and fade the volume
+   down to nothing. */
+let __bgMusicBaseVolume = null;
+let __bgMusicFadeOut = null;
+let __bgMusicFadeIn = null;
+
 function duckMusicForTransition() {
   const audio = document.getElementById('bgMusic');
   if (!audio || audio.paused) return;
-  const original = audio.volume;
+
+  // Cancel any fade already running so effects can't stack.
+  clearInterval(__bgMusicFadeOut);
+  clearInterval(__bgMusicFadeIn);
+
+  // Capture the "real" volume only once, the first time this runs, so
+  // later calls always fade relative to the true normal level.
+  if (__bgMusicBaseVolume === null) {
+    __bgMusicBaseVolume = audio.volume;
+  }
+  const base = __bgMusicBaseVolume;
   const duck = (v) => (audio.volume = Math.max(0, Math.min(1, v)));
+
   let steps = 0;
-  const fadeOut = setInterval(() => {
+  __bgMusicFadeOut = setInterval(() => {
     steps++;
-    duck(original - (original * steps) / 6);
+    duck(base - (base * steps) / 6);
     if (steps >= 6) {
-      clearInterval(fadeOut);
+      clearInterval(__bgMusicFadeOut);
       let stepsBack = 0;
-      const fadeIn = setInterval(() => {
+      __bgMusicFadeIn = setInterval(() => {
         stepsBack++;
-        duck((original * stepsBack) / 6);
-        if (stepsBack >= 6) clearInterval(fadeIn);
+        duck((base * stepsBack) / 6);
+        if (stepsBack >= 6) {
+          clearInterval(__bgMusicFadeIn);
+          duck(base); // snap exactly back to true base volume, no drift
+        }
       }, 90);
     }
   }, 90);
+}
+
+/* Also keep the base volume in sync if the visitor manually adjusts the
+   slider, so future stage transitions duck relative to their new choice. */
+document.addEventListener('DOMContentLoaded', () => {
+  const slider = document.getElementById('volumeSlider');
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      __bgMusicBaseVolume = parseFloat(e.target.value);
+    });
+  }
+});
+
+/* =========================================================
+   TINY SOUND EFFECTS ENGINE
+   Synthesized entirely with the Web Audio API — no sound files
+   to add, host, or forget. Each call makes a short, soft tone.
+   ========================================================= */
+let __sfxCtx = null;
+function getSfxContext() {
+  if (!__sfxCtx) __sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return __sfxCtx;
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.15) {
+  try {
+    const ctx = getSfxContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = volume;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.stop(ctx.currentTime + duration);
+  } catch (e) { /* audio not available — fail silently, effects are decorative */ }
+}
+
+function sfxPop() {
+  playTone(700, 0.12, 'triangle', 0.18);
+  setTimeout(() => playTone(400, 0.1, 'triangle', 0.12), 40);
+}
+function sfxDing() {
+  playTone(880, 0.25, 'sine', 0.15);
+  setTimeout(() => playTone(1320, 0.3, 'sine', 0.12), 120);
+}
+function sfxWhoosh() {
+  playTone(200, 0.3, 'sawtooth', 0.08);
+}
+function sfxChime() {
+  [523, 659, 784].forEach((f, i) => setTimeout(() => playTone(f, 0.4, 'sine', 0.12), i * 140));
 }
 
 /* ---- Stage 1: Blow out the candle (microphone volume detection) ---- */
@@ -412,6 +487,7 @@ function setupCandleStage(onComplete) {
     if (done) return;
     done = true;
     candle.classList.add('blown-out');
+    sfxWhoosh();
     statusText.textContent = 'Nice blow! 🎉';
     setTimeout(onComplete, 1200);
   }
@@ -476,6 +552,7 @@ function setupGiftStage(onComplete) {
     if (opened) return;
     opened = true;
     box.classList.add('opened');
+    sfxDing();
     message.classList.remove('hidden');
     continueBtn.classList.remove('hidden');
   });
@@ -502,6 +579,7 @@ function setupBalloonPopStage(onComplete) {
     b.addEventListener('click', () => {
       if (b.classList.contains('popped')) return;
       b.classList.add('popped');
+      sfxPop();
       popped++;
       subtitle.textContent = `${popped} of ${total} popped 🎈`;
       if (popped >= total) continueBtn.classList.remove('hidden');
@@ -620,7 +698,16 @@ function setupSkyFinaleStage() {
   const canvas = document.getElementById('skyCanvas');
   const ctx = canvas.getContext('2d');
   const scene = document.getElementById('skyScene');
+  const replayBtn = document.getElementById('skyReplayBtn');
   let stars = [];
+  let chimed = false;
+
+  replayBtn.addEventListener('click', () => {
+    // Simplest reliable "watch it again": reload the page (keeping the
+    // current URL, including ?preview=true if present) so every stage
+    // resets to its true starting state.
+    window.location.reload();
+  });
 
   function resize() {
     canvas.width = scene.clientWidth;
@@ -726,10 +813,28 @@ function initGalleryImageFallback() {
     "%3Crect width='100%25' height='100%25' fill='%23f3d9e5'/%3E" +
     "%3Ctext x='50%25' y='50%25' font-size='20' text-anchor='middle' dominant-baseline='middle' fill='%23a06'%3EPhoto coming soon%3C/text%3E%3C/svg%3E";
 
-  document.querySelectorAll('.masonry-item img').forEach((img) => {
+  document.querySelectorAll('.masonry-item').forEach((figure) => {
+    const img = figure.querySelector('img');
+    if (!img) return;
+
+    // Show a soft shimmering skeleton until the real photo has actually
+    // finished loading, instead of a blank gap or a jarring pop-in.
+    figure.classList.add('is-loading');
+
+    function clearSkeleton() {
+      figure.classList.remove('is-loading');
+    }
+
+    if (img.complete && img.naturalWidth > 0) {
+      clearSkeleton(); // already loaded (e.g. from cache) before listeners attached
+    } else {
+      img.addEventListener('load', clearSkeleton);
+    }
+
     img.addEventListener('error', () => {
       img.onerror = null; // prevent any repeat loop
       img.src = placeholderSVG;
+      clearSkeleton();
     });
   });
 }
