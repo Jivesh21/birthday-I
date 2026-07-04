@@ -54,6 +54,122 @@ section.section { position: relative; padding: 6rem 1.5rem; overflow: hidden; }
   .cursor-dot, .cursor-heart { display: none; }
 }
 
+/* ---------- BIRTHDAY EXPERIENCE (July 22 only) ---------- */
+.bday-experience-section { text-align: center; }
+.bday-teaser { max-width: 420px; margin: 0 auto; padding: 2.4rem 2rem; }
+.bday-teaser-icon { font-size: 2.2rem; }
+.bday-teaser h3 { font-family: var(--font-heading); color: var(--color-purple-dark); margin: .5rem 0; }
+.bday-teaser p { color: var(--color-text-light); }
+
+.bday-stages.hidden { display: none; }
+.stage { display: none; max-width: 640px; margin: 0 auto; }
+.stage.active { display: block; animation: fadeUp .6s ease; }
+
+/* Stage 1: candle + mic */
+.candle-scene { margin: 2rem auto; }
+.mic-meter { max-width: 260px; height: 14px; margin: 1.2rem auto .6rem; background: rgba(255,255,255,.4); border-radius: 10px; overflow: hidden; }
+.mic-meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--color-pink), var(--color-gold)); transition: width .08s linear; }
+.mic-status { font-size: .85rem; color: var(--color-text-light); margin-bottom: 1.2rem; }
+.cake-candle.blown-out .flame { opacity: 0; }
+.cake-candle.blown-out::after {
+  content: '💨'; position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  font-size: 1rem; opacity: .8;
+}
+
+/* Stage 2: gift box */
+.gift-box {
+  position: relative; font-size: 5rem; background: none; margin: 2rem auto; display: block;
+  transition: transform var(--transition-base);
+}
+.gift-box:hover { transform: scale(1.06); }
+.gift-lid { display: inline-block; transition: transform .5s ease, opacity .5s ease; }
+.gift-box.opened .gift-lid { transform: translateY(-40px) rotate(-25deg); opacity: 0; }
+.gift-box.opened .gift-body { animation: pulse .8s ease; }
+.gift-message { margin: 1.4rem auto; max-width: 420px; color: var(--color-text); font-style: italic; }
+
+/* Stage 3: pop balloons */
+.pop-balloons-field { position: relative; height: 320px; max-width: 500px; margin: 1.5rem auto; }
+.pop-balloon {
+  position: absolute; width: 60px; height: 74px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  cursor: pointer; transition: transform .15s ease; display: flex; align-items: flex-start; justify-content: center;
+  font-size: 1.4rem; color: rgba(255,255,255,.6); user-select: none;
+}
+.pop-balloon:hover { transform: scale(1.05); }
+.pop-balloon.popped { animation: balloonPop .3s forwards; pointer-events: none; }
+@keyframes balloonPop { to { transform: scale(1.6); opacity: 0; } }
+
+/* Stage 4: heart-catch game */
+.heart-game-wrap { position: relative; max-width: 500px; margin: 1.2rem auto; }
+#heartGameCanvas {
+  width: 100%; height: 380px; border-radius: var(--radius-md); background: linear-gradient(180deg, #fbe4ee, #f3d9ee);
+  box-shadow: var(--glass-shadow); touch-action: none; cursor: none;
+}
+.heart-game-hud {
+  position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between;
+  font-weight: 600; color: var(--color-purple-dark); font-size: .9rem;
+}
+
+/* Stage 6: night sky finale */
+.sky-scene {
+  position: relative; min-height: 70vh; border-radius: var(--radius-lg); overflow: hidden;
+  background: radial-gradient(ellipse at center, #1a1440 0%, #0a0620 80%);
+  display: flex; align-items: center; justify-content: center;
+}
+#skyCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sky-message { position: relative; z-index: 2; color: #fff; text-align: center; }
+.sky-message h2 { font-family: var(--font-heading); font-size: clamp(1.8rem, 5vw, 3rem); text-shadow: 0 0 20px rgba(255,255,255,.6); }
+.sky-message .sky-name {
+  color: var(--color-gold); text-shadow: 0 0 30px rgba(246,198,103,.9);
+  animation: pulse 2s ease-in-out infinite;
+}
+.sky-message p { margin-top: 1rem; opacity: .85; font-style: italic; }
+
+/* ---------- DAILY LOVE NOTE ---------- */
+.daily-notes-grid {
+  max-width: 1000px; margin: 0 auto; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;
+}
+.daily-note-card {
+  position: relative; border-radius: var(--radius-md); padding: 1.4rem 1rem; text-align: center;
+  background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
+  min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: var(--glass-shadow); transition: transform var(--transition-base);
+}
+.daily-note-card:hover { transform: translateY(-4px); }
+.daily-note-card .day-label {
+  font-size: .7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--color-purple-dark);
+  font-weight: 700; margin-bottom: .5rem;
+}
+.daily-note-card .note-text { font-size: .88rem; color: var(--color-text); }
+
+.daily-note-card.locked { filter: blur(4px); opacity: .75; pointer-events: none; user-select: none; }
+.daily-note-card.locked .note-text::after { content: '✨ A little surprise is waiting here'; filter: none; }
+.daily-note-card.locked .note-text { visibility: hidden; position: relative; }
+.daily-note-card.locked .note-text::before {
+  content: '✨ A little surprise is waiting here'; visibility: visible; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; filter: blur(0);
+}
+.daily-note-card .lock-badge {
+  position: absolute; top: 8px; right: 10px; font-size: .85rem; filter: none;
+}
+.daily-note-card.unlocked-today { border: 2px solid var(--color-gold); box-shadow: 0 0 20px rgba(246,198,103,.5); }
+
+/* ---------- LETTER LOCK OVERLAY ---------- */
+.letter-wrapper { position: relative; max-width: 640px; width: 100%; margin: 0 auto; }
+.letter-paper.is-locked { filter: blur(9px); user-select: none; pointer-events: none; }
+.letter-lock-overlay {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  padding: 1rem; text-align: center;
+}
+.letter-lock-overlay.show { display: flex; }
+.letter-lock-box {
+  background: rgba(255,255,255,.75); backdrop-filter: blur(6px); border-radius: var(--radius-md);
+  padding: 2rem 1.8rem; box-shadow: 0 10px 30px rgba(94,44,120,.25); max-width: 320px;
+}
+.letter-lock-icon { font-size: 2.2rem; margin-bottom: .5rem; }
+.letter-lock-box h3 { font-family: var(--font-heading); color: var(--color-purple-dark); margin-bottom: .5rem; font-size: 1.1rem; }
+#letterLockCountdown { color: var(--color-text-light); font-size: .9rem; }
+
 /* ---------- SKIP LINK (ACCESSIBILITY) ---------- */
 .skip-link {
   position: absolute; top: -60px; left: 1rem; z-index: 10001;
