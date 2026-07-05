@@ -210,6 +210,98 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .preloader-heart { font-size: 2.4rem; color: var(--color-pink); animation: pulse 1s ease-in-out infinite; }
 .preloader p { font-family: var(--font-heading); color: var(--color-purple-dark); font-style: italic; }
 
+/* ---------- K-DRAMA STYLE EPISODE INTRO ---------- */
+.episode-intro {
+  position: fixed; inset: 0; z-index: 9999; background: #05030c;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+.episode-intro.show { opacity: 1; visibility: visible; pointer-events: auto; }
+.episode-intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Soft dark edges, like a film frame rather than a flat rectangle */
+.episode-vignette {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.65) 100%);
+}
+
+/* Subtle animated film grain texture for cinematic texture, built purely
+   from a tiny repeating noise pattern — no image file needed. */
+.episode-grain {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: .15; mix-blend-mode: overlay;
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.4) 0, transparent 1px),
+    repeating-radial-gradient(circle at 70% 60%, rgba(255,255,255,.3) 0, transparent 1px),
+    repeating-radial-gradient(circle at 40% 80%, rgba(255,255,255,.35) 0, transparent 1px);
+  background-size: 3px 3px, 4px 4px, 5px 5px;
+  animation: grainShift 0.4s steps(4) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(0,0); }
+}
+
+/* Softly drifting light particles — like dust or fireflies catching light
+   in a moody drama shot. */
+.episode-particles { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.episode-particle {
+  position: absolute; bottom: -5%; width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,255,255,0));
+  animation: episodeParticleFloat linear infinite;
+}
+@keyframes episodeParticleFloat {
+  from { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: .8; }
+  100% { transform: translateY(-115vh) translateX(30px); opacity: 0; }
+}
+
+/* Cinematic letterbox bars, like a widescreen drama frame */
+.episode-bar { position: absolute; left: 0; right: 0; height: 12vh; background: #000; z-index: 3; }
+.episode-bar-top { top: 0; }
+.episode-bar-bottom { bottom: 0; }
+
+.episode-intro-content {
+  position: relative; z-index: 4; text-align: center; color: #fff; padding: 0 1.5rem; max-width: 640px;
+}
+.episode-label {
+  font-size: .72rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55);
+  margin-bottom: .8rem; opacity: 0; animation: episodeFadeUp 1s ease forwards; animation-delay: .3s;
+}
+.episode-number {
+  font-family: var(--font-heading); font-size: 1.1rem; letter-spacing: 4px; color: var(--color-gold);
+  margin-bottom: 1.2rem; opacity: 0; animation: episodeFadeUp 1s ease forwards; animation-delay: .8s;
+}
+.episode-title {
+  font-family: var(--font-heading); font-size: clamp(2rem, 6vw, 3.4rem); font-weight: 700;
+  text-shadow: 0 0 30px rgba(255,111,165,.5); margin-bottom: 1rem;
+  opacity: 0; transform: scale(0.92); animation: episodeTitleIn 1.2s ease forwards; animation-delay: 1.3s;
+}
+.episode-tagline {
+  font-style: italic; font-size: 1.05rem; color: rgba(255,255,255,.75);
+  opacity: 0; animation: episodeFadeUp 1s ease forwards; animation-delay: 2.2s;
+}
+
+@keyframes episodeFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes episodeTitleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+
+.episode-skip-btn {
+  position: absolute; bottom: 14vh; right: 1.5rem; z-index: 5;
+  background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.35);
+  padding: .5rem 1.1rem; border-radius: 30px; font-size: .82rem; font-weight: 500;
+  opacity: 0; animation: episodeFadeUp 1s ease forwards; animation-delay: 1s;
+  transition: background var(--transition-base);
+}
+.episode-skip-btn:hover { background: rgba(255,255,255,.22); }
+
+@media (max-width: 600px) {
+  .episode-bar { height: 9vh; }
+  .episode-skip-btn { bottom: 10vh; right: 1rem; font-size: .75rem; padding: .45rem .9rem; }
+}
+
 /* ---------- SCROLL PROGRESS BAR ---------- */
 .scroll-progress {
   position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 1001;
@@ -261,6 +353,20 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   100% { background-position: 0% 50%; }
 }
 .particles { position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+
+/* Very light persistent film grain across the whole site — a much
+   subtler cousin of the intro's grain, just enough to keep a bit of that
+   cinematic texture going after the intro fades, without hurting
+   readability of any of the text-heavy sections. */
+.site-grain {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .035; mix-blend-mode: overlay;
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, rgba(0,0,0,.5) 0, transparent 1px),
+    repeating-radial-gradient(circle at 70% 60%, rgba(0,0,0,.4) 0, transparent 1px);
+  background-size: 3px 3px, 4px 4px;
+  animation: grainShift 0.5s steps(4) infinite;
+}
+
 .particle {
   position: absolute; border-radius: 50%;
   background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0));
@@ -402,6 +508,17 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 /* ---------- SECTION TITLES ---------- */
 .section-title { font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; color: var(--color-purple-dark); margin-bottom: .5rem; }
 .section-subtitle { text-align: center; color: var(--color-text-light); margin-bottom: 3rem; font-style: italic; }
+
+/* Small "EPISODE X" chapter markers, tying every section into one
+   continuous drama, the way K-drama platforms label chapters. */
+.chapter-marker {
+  text-align: center; font-size: .72rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--color-gold); font-weight: 700; margin-bottom: .6rem; opacity: .9;
+}
+.chapter-marker.season-finale {
+  color: var(--color-pink); font-size: .78rem; margin-bottom: 1rem;
+  text-shadow: 0 0 12px rgba(255,111,165,.4);
+}
 
 /* ---------- TIMELINE (OUR JOURNEY) ---------- */
 .timeline { position: relative; max-width: 900px; margin: 0 auto; }
