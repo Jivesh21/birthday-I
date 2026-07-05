@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -38,6 +38,22 @@
   <p>Loading something special…</p>
 </div>
 
+<!-- K-drama style episode intro card -->
+<div class="episode-intro" id="episodeIntro" aria-hidden="true">
+  <div class="episode-vignette"></div>
+  <div class="episode-grain"></div>
+  <div class="episode-particles" id="episodeParticles"></div>
+  <div class="episode-bar episode-bar-top"></div>
+  <div class="episode-bar episode-bar-bottom"></div>
+  <div class="episode-intro-content">
+    <p class="episode-label">A STORY IN ONE EPISODE</p>
+    <p class="episode-number">EPISODE 22</p>
+    <h1 class="episode-title">Happy Birthday, Ishu</h1>
+    <p class="episode-tagline">A story written just for you.</p>
+  </div>
+  <button class="episode-skip-btn" id="episodeSkipBtn">Skip Intro ▶</button>
+</div>
+
 <!-- Scroll progress bar -->
 <div class="scroll-progress" id="scrollProgress"></div>
 
@@ -48,6 +64,7 @@
 <!-- Background layers -->
 <div class="bg-gradient"></div>
 <div class="particles" id="particles"></div>
+<div class="site-grain" aria-hidden="true"></div>
 
 <!-- Navigation -->
 <nav class="navbar" id="navbar">
@@ -110,6 +127,7 @@
 
 <!-- OUR JOURNEY -->
 <section id="journey" class="section journey">
+  <p class="chapter-marker" data-animate="fade-up">EPISODE 1 · THE STORY SO FAR</p>
   <h2 class="section-title" data-animate="fade-up">Our Journey</h2>
   <p class="section-subtitle" data-animate="fade-up">Every moment,a page in our story.</p>
 
@@ -156,6 +174,7 @@
 
 <!-- DAILY LOVE NOTE -->
 <section id="daily-notes" class="section daily-notes-section">
+  <p class="chapter-marker" data-animate="fade-up">EPISODE 2 · A NOTE A DAY</p>
   <h2 class="section-title" data-animate="fade-up">A Note a Day, Until Your Day</h2>
   <p class="section-subtitle" data-animate="fade-up">One new message unlocks every day, all the way to July 22nd.</p>
 
@@ -166,6 +185,7 @@
 
 <!-- GALLERY -->
 <section id="gallery" class="section gallery-section">
+  <p class="chapter-marker" data-animate="fade-up">EPISODE 3 · OUR MEMORIES</p>
   <h2 class="section-title" data-animate="fade-up">Memory Gallery</h2>
   <p class="section-subtitle" data-animate="fade-up">A few frames from our story.</p>
 
@@ -209,6 +229,7 @@
 
 <!-- REASONS -->
 <section id="reasons" class="section reasons-section">
+  <p class="chapter-marker" data-animate="fade-up">EPISODE 4 · REASONS WHY</p>
   <h2 class="section-title" data-animate="fade-up">Reasons I Love You</h2>
   <p class="section-subtitle" data-animate="fade-up">Click for a new one anytime.</p>
 
@@ -222,6 +243,7 @@
 
 <!-- QUIZ -->
 <section id="quiz" class="section quiz-section">
+  <p class="chapter-marker" data-animate="fade-up">EPISODE 5 · A LITTLE GAME</p>
   <h2 class="section-title" data-animate="fade-up">Just for Fun — A Little Quiz</h2>
   <p class="section-subtitle" data-animate="fade-up">How well do you know us?</p>
 
@@ -245,6 +267,7 @@
 
 <!-- LETTER -->
 <section id="letter" class="section letter-section">
+  <p class="chapter-marker" data-animate="fade-up">EPISODE 6 · THE LETTER</p>
   <h2 class="section-title" data-animate="fade-up">A Letter For You</h2>
 
   <div class="letter-wrapper" id="letterWrapper" data-animate="fade-up">
@@ -304,6 +327,7 @@ Jivesh ❤️.</p>
 
 <!-- BIRTHDAY EXPERIENCE — visible only on July 22 -->
 <section id="bday-experience" class="section bday-experience-section">
+  <p class="chapter-marker season-finale" data-animate="fade-up">SEASON FINALE · EPISODE 7</p>
 
   <!-- Teaser shown on every day EXCEPT July 22 -->
   <div class="bday-teaser glass-card" id="bdayTeaser" data-animate="fade-up">
@@ -436,6 +460,10 @@ Jivesh ❤️.</p>
   <p>Made with ❤️ and code, just for you.</p>
 </footer>
 
-<script src="script.js?v=9"></script>
+<!-- Three.js — used only for the night-sky finale's 3D parallax starfield.
+     If it fails to load (e.g. no internet at that moment), script.js falls
+     back to the original flat 2D canvas starfield automatically. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js?v=13"></script>
 </body>
 </html>
