@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initSurprise();
   initHiddenSecret();
   initRipple();
+  initFireflies();
+  initLoveMeter();
+  initScratchCard();
+  initOpenWhen();
+  initVoiceMessages();
+  initTimeCapsule();
+  initRingReveal();
+  initDevMode();
+  initFloatingWishes();
+  initEndingChoiceAndCredits();
 });
 
 /* ---------------- PRELOADER ---------------- */
@@ -48,6 +58,7 @@ function initEpisodeIntro() {
   if (!intro) return;
 
   let dismissed = false;
+  let autoDismissTimer = null;
 
   // Drifting light particles, same idea as the hero's floating hearts,
   // but plain glowing dots to fit the cinematic mood here.
@@ -63,20 +74,36 @@ function initEpisodeIntro() {
     }
   }
 
+  function lockScroll() {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  }
+  function unlockScroll() {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+  }
+
   function showIntro() {
     intro.classList.add('show');
-    document.body.style.overflow = 'hidden'; // hold the moment — no scrolling during the intro
+    lockScroll(); // hold the moment — no scrolling during the intro
     // A soft rising piano-style sting, timed to land right as the title
     // scales into view — synthesized, no audio file needed.
     setTimeout(playEpisodeSting, 1300);
+
+    // Auto-dismiss timer starts NOW, from the moment it's actually visible
+    // — not from page load — so it always gets a full ~4.3s on screen even
+    // if the preloader took a while to clear first (slow connection, large
+    // images, the Three.js CDN script, etc.).
+    autoDismissTimer = setTimeout(dismissIntro, 4300);
   }
 
   function dismissIntro() {
     if (dismissed) return;
     dismissed = true;
+    clearTimeout(autoDismissTimer);
     intro.classList.add('hide');
     intro.classList.remove('show');
-    document.body.style.overflow = '';
+    unlockScroll();
     setTimeout(() => intro.remove(), 1100); // clean up after the fade-out finishes
   }
 
@@ -84,19 +111,17 @@ function initEpisodeIntro() {
   // the natural next beat rather than competing with it.
   setTimeout(showIntro, 900);
 
-  // Auto-dismiss after a few seconds, like an opening title card that
-  // naturally cuts to the "show" — but skippable, K-drama-platform style.
-  const autoDismissTimer = setTimeout(dismissIntro, 5200);
+  // Hard safety net: no matter what happens above (a slow connection, an
+  // unexpected error, a browser quirk), scrolling is guaranteed to be
+  // unlocked and the intro cleared within 10 seconds of page load — so
+  // this can never leave the page permanently stuck.
+  setTimeout(() => {
+    if (!dismissed) dismissIntro();
+  }, 10000);
 
-  skipBtn.addEventListener('click', () => {
-    clearTimeout(autoDismissTimer);
-    dismissIntro();
-  });
+  skipBtn.addEventListener('click', dismissIntro);
   intro.addEventListener('click', (e) => {
-    if (e.target === intro) {
-      clearTimeout(autoDismissTimer);
-      dismissIntro();
-    }
+    if (e.target === intro) dismissIntro();
   });
 }
 
@@ -1034,10 +1059,22 @@ function initMusicPlayer() {
   const audio = document.getElementById('bgMusic');
   const toggleBtn = document.getElementById('musicToggle');
   const volumeSlider = document.getElementById('volumeSlider');
+  const seekBar = document.getElementById('mpSeekBar');
+  const currentTimeEl = document.getElementById('mpCurrentTime');
+  const durationEl = document.getElementById('mpDuration');
+  const favoriteBtn = document.getElementById('mpFavoriteBtn');
   let playing = false;
   let autoStarted = false;
+  let favorited = false;
 
   audio.volume = parseFloat(volumeSlider.value);
+
+  function formatTime(sec) {
+    if (!isFinite(sec) || sec < 0) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
 
   function startMusic() {
     if (playing) return;
@@ -1054,7 +1091,7 @@ function initMusicPlayer() {
   function pauseMusic() {
     audio.pause();
     playing = false;
-    toggleBtn.textContent = '🎵';
+    toggleBtn.textContent = '▶';
   }
 
   // Manual toggle button always works
@@ -1066,6 +1103,30 @@ function initMusicPlayer() {
   volumeSlider.addEventListener('input', (e) => {
     audio.volume = parseFloat(e.target.value);
   });
+
+  if (favoriteBtn) {
+    favoriteBtn.addEventListener('click', () => {
+      favorited = !favorited;
+      favoriteBtn.textContent = favorited ? '❤️' : '🤍';
+    });
+  }
+
+  if (seekBar) {
+    audio.addEventListener('loadedmetadata', () => {
+      durationEl.textContent = formatTime(audio.duration);
+    });
+    audio.addEventListener('timeupdate', () => {
+      if (audio.duration) {
+        seekBar.value = (audio.currentTime / audio.duration) * 100;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+      }
+    });
+    seekBar.addEventListener('input', () => {
+      if (audio.duration) {
+        audio.currentTime = (seekBar.value / 100) * audio.duration;
+      }
+    });
+  }
 
   // Auto-start on the visitor's first interaction anywhere on the page
   function autoStartOnce() {
@@ -1479,6 +1540,7 @@ function initLoveButton() {
   btn.addEventListener('click', (e) => {
     heartExplosion(e.clientX, e.clientY);
     launchConfettiBurst();
+    openRingReveal();
   });
 }
 
@@ -1540,4 +1602,466 @@ function initRipple() {
       btn.classList.add('rippling');
     });
   });
+}
+
+/* ---------------- FIREFLIES ---------------- */
+function initFireflies() {
+  const container = document.getElementById('fireflies');
+  if (!container) return;
+  const count = window.innerWidth < 768 ? 12 : 22;
+  for (let i = 0; i < count; i++) {
+    const f = document.createElement('div');
+    f.className = 'firefly';
+    f.style.left = Math.random() * 100 + '%';
+    f.style.top = Math.random() * 100 + '%';
+    f.style.animationDuration = `${10 + Math.random() * 8}s, ${2 + Math.random() * 2}s`;
+    f.style.animationDelay = `${Math.random() * 6}s, ${Math.random() * 3}s`;
+    container.appendChild(f);
+  }
+}
+
+/* ---------------- LOVE METER ---------------- */
+function initLoveMeter() {
+  const btn = document.getElementById('loveMeterBtn');
+  const percentEl = document.getElementById('loveMeterPercent');
+  const fillEl = document.getElementById('loveMeterFill');
+  if (!btn) return;
+
+  // A deliberately silly, non-linear countup: fast at first, stalls at an
+  // "ERROR" moment, then resolves to infinity — just for fun.
+  const steps = [10, 45, 82, 99, 'ERROR', '∞'];
+  let running = false;
+
+  btn.addEventListener('click', () => {
+    if (running) return;
+    running = true;
+    btn.disabled = true;
+    let i = 0;
+
+    function nextStep() {
+      const val = steps[i];
+      if (val === 'ERROR') {
+        percentEl.textContent = 'ERROR ⚠️';
+        fillEl.style.width = '100%';
+      } else if (val === '∞') {
+        percentEl.textContent = 'Infinity ❤️';
+        fillEl.style.width = '100%';
+      } else {
+        percentEl.textContent = val + '%';
+        fillEl.style.width = val + '%';
+      }
+      i++;
+      if (i < steps.length) {
+        setTimeout(nextStep, val === 'ERROR' ? 900 : 550);
+      } else {
+        btn.disabled = false;
+        running = false;
+      }
+    }
+    nextStep();
+  });
+}
+
+/* ---------------- SCRATCH CARD ---------------- */
+function initScratchCard() {
+  const canvas = document.getElementById('scratchCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const wrap = canvas.closest('.scratch-card-wrap');
+
+  function resize() {
+    canvas.width = wrap.clientWidth;
+    canvas.height = wrap.clientHeight;
+    // The scratchable foil layer — a soft metallic-looking gradient.
+    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    grad.addColorStop(0, '#c9c9d6');
+    grad.addColorStop(0.5, '#e8e8f0');
+    grad.addColorStop(1, '#c9c9d6');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '600 16px sans-serif';
+    ctx.fillStyle = '#6b5c80';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎁 Scratch Here 🎁', canvas.width / 2, canvas.height / 2);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let scratching = false;
+
+  function scratchAt(x, y) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  canvas.addEventListener('mousedown', (e) => { scratching = true; const p = getPos(e); scratchAt(p.x, p.y); });
+  canvas.addEventListener('mousemove', (e) => { if (scratching) { const p = getPos(e); scratchAt(p.x, p.y); } });
+  window.addEventListener('mouseup', () => (scratching = false));
+
+  canvas.addEventListener('touchstart', (e) => { scratching = true; const p = getPos(e); scratchAt(p.x, p.y); }, { passive: true });
+  canvas.addEventListener('touchmove', (e) => { if (scratching) { const p = getPos(e); scratchAt(p.x, p.y); } }, { passive: true });
+  canvas.addEventListener('touchend', () => (scratching = false));
+}
+
+/* ---------------- OPEN WHEN... ---------------- */
+function initOpenWhen() {
+  const grid = document.getElementById('openWhenGrid');
+  if (!grid) return;
+
+  // Placeholder messages — replace these with real ones whenever you're ready.
+const cards = [
+  {
+    label: "Open when you're sad 💙",
+    icon: "🥺",
+    message:
+      "Hey my love... 💌 I know today might feel heavy, but please remember this—bad days don't last forever. You're stronger than you think, and I'll always be here to listen, hug you (even virtually 🤗), and remind you how amazing you are. Smile a little for me, okay? ❤️"
+  },
+
+  {
+    label: "Open when you're stressed 😣",
+    icon: "🌸",
+    message:
+      "Take a deep breath, Ishu. 🌷 You don't have to carry the whole world on your shoulders. One step at a time, one problem at a time. Drink some water 💧, stretch a little 🧘‍♀️, and remember... you've already overcome so much. I believe in you more than you know. 💖"
+  },
+
+  {
+    label: "Open when you miss me 🥹",
+    icon: "💞",
+    message:
+      "Awww... missing me? 🥺❤️ Then close your eyes for a second and imagine I'm holding your hand. 🤝 If I could, I'd teleport to you right now just to see your smile. Until then, keep this little message as a warm hug from me. 🤍 I miss you too... probably even more. 💕"
+  },
+
+  {
+    label: "Open when you can't sleep 🌙",
+    icon: "✨",
+    message:
+      "Good night, my sleepyhead. 🌙💤 Stop thinking about everything for a while. Wrap yourself in your blanket, take slow breaths, and let your worries rest too. Imagine we're lying under a sky full of stars together. ⭐ Sweet dreams, my beautiful girl. I'll meet you there. ❤️"
+  },
+
+  {
+    label: "Open when you need motivation 🚀",
+    icon: "💪",
+    message:
+      "Listen to me carefully... 🌸 You are capable, talented, kind, and stronger than you realize. Don't let one difficult day make you doubt yourself. Keep moving forward, even if it's just one tiny step today. I'll always be your biggest supporter. Go make yourself proud—I already am. ❤️✨"
+  }
+];
+
+  const modal = document.createElement('div');
+  modal.className = 'open-when-modal';
+  modal.innerHTML = `<div class="open-when-modal-box glass-card"><button class="secret-close" aria-label="Close">&times;</button><p class="secret-emoji">💌</p><p id="openWhenModalText"></p></div>`;
+  document.body.appendChild(modal);
+  const modalText = modal.querySelector('#openWhenModalText');
+  const modalClose = modal.querySelector('.secret-close');
+
+  cards.forEach((c) => {
+    const card = document.createElement('div');
+    card.className = 'open-when-card';
+    card.innerHTML = `<span class="envelope-icon">${c.icon}</span><p class="open-when-label">${c.label}</p>`;
+    card.addEventListener('click', () => {
+      modalText.textContent = c.message;
+      modal.classList.add('show');
+    });
+    grid.appendChild(card);
+  });
+
+  modalClose.addEventListener('click', () => modal.classList.remove('show'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+}
+
+/* ---------------- VOICE MESSAGES ---------------- */
+function initVoiceMessages() {
+  const grid = document.getElementById('voiceTapesGrid');
+  const player = document.getElementById('voiceAudioPlayer');
+  if (!grid || !player) return;
+
+  // Placeholder tapes — add real recordings to assets/voice/ and update
+  // these paths. Each tape plays one audio file when clicked.
+  const tapes = [
+    { label: 'Secret Message', src: './assets/Secret%20message.mp3' },
+    { label: 'Whenever You Are Sad', src: './assets/Whenever%20you%20are%20sad.mp3' },
+    { label: 'Why You Are Feeling Low', src: './assets/Why%20you%20are%20feeling%20low.mp3' }
+  ];
+
+  let currentTape = null;
+
+  tapes.forEach((t) => {
+    const tape = document.createElement('div');
+    tape.className = 'voice-tape';
+    tape.innerHTML = `<div class="tape-icon">🎙️</div><p class="tape-label">${t.label}</p>`;
+    tape.addEventListener('click', () => {
+      document.querySelectorAll('.voice-tape').forEach((el) => el.classList.remove('playing'));
+      if (currentTape === tape && !player.paused) {
+        player.pause();
+        currentTape = null;
+        return;
+      }
+      player.src = t.src;
+      player.play().catch(() => {
+        alert('Add your recording at ' + t.src + ' to enable this voice message.');
+      });
+      tape.classList.add('playing');
+      currentTape = tape;
+    });
+    grid.appendChild(tape);
+  });
+
+  player.addEventListener('ended', () => {
+    document.querySelectorAll('.voice-tape').forEach((el) => el.classList.remove('playing'));
+    currentTape = null;
+  });
+}
+
+/* ---------------- TIME CAPSULE ---------------- */
+function initTimeCapsule() {
+  const grid = document.getElementById('timeCapsuleGrid');
+  if (!grid) return;
+
+  // Placeholder capsules — edit the messages, and add more years by
+  // copying the pattern below.
+const capsules = [
+  {
+    year: 2026,
+    unlockDate: null,
+    message: `Hi Ishu ❤️,
+
+If you're reading this, it means we've reached another beautiful chapter together.
+
+I hope you're smiling as you read these words because that's always been one of my favorite sights.
+
+Thank you for being my comfort, my happiness, and the person who makes ordinary days feel special.
+
+No matter how busy life gets or how much time passes, I hope one thing never changes—that we keep choosing each other every single day.
+
+Happy Birthday once again, my love.
+
+I love you endlessly.
+
+— Jivesh ❤️`
+  },
+
+  {
+    year: 2027,
+    unlockDate: "July 22 2027",
+    message: `Happy Birthday, My Love! 🎂❤️
+
+A whole year has passed since I built this little surprise for you.
+
+I wonder where life has taken us by now.
+
+Maybe we've made countless new memories...
+Maybe we've travelled somewhere together...
+Maybe we're still laughing over the same silly jokes.
+
+Whatever has changed, I hope one thing hasn't...
+
+I still hope your smile is my favorite place.
+
+If you're reading this, know that I'm grateful for every moment we've shared.
+
+Here's to many more birthdays together.
+
+Forever yours,
+
+Jivesh ❤️`
+  },
+
+  {
+    year: 2028,
+    unlockDate: "July 22 2028",
+    message: `Dear Future Ishu ❤️,
+
+Two years have passed since this website was created.
+
+Isn't that amazing?
+
+I hope you're happy.
+I hope your dreams are coming true.
+I hope you're taking care of yourself.
+
+And I hope that whenever life becomes difficult, you remember that you'll always be loved more than you know.
+
+If we're still reading this together, then thank you for continuing this beautiful journey with me.
+
+If life has surprised us in ways we never imagined, I hope those surprises made us stronger.
+
+No matter what happens...
+
+You'll always have a special place in my heart.
+
+Happy Birthday, beautiful.
+
+I love you.
+
+Always.
+
+— Jivesh ❤️`
+  }
+];
+  capsules.forEach((c) => {
+    const card = document.createElement('div');
+    const isLocked = c.unlockDate && new Date() < new Date(c.unlockDate);
+    card.className = 'time-capsule-card' + (isLocked ? ' locked' : '');
+
+    if (isLocked) {
+      card.innerHTML = `
+        <p class="capsule-year">${c.year}</p>
+        <p class="capsule-lock">🔒</p>
+        <p class="capsule-unlock-date">Opens on ${c.unlockDate}</p>
+      `;
+    } else {
+      card.innerHTML = `
+        <p class="capsule-year">${c.year}</p>
+        <p class="capsule-message">${c.message}</p>
+      `;
+    }
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- PROPOSAL-STYLE RING REVEAL ---------------- */
+function initRingReveal() {
+  const overlay = document.getElementById('ringOverlay');
+  const box = document.getElementById('ringBox');
+  const message = document.getElementById('ringMessage');
+  const closeBtn = document.getElementById('ringClose');
+  if (!overlay) return;
+
+  box.addEventListener('click', () => {
+    box.classList.add('opened');
+    setTimeout(() => message.classList.remove('hidden'), 400);
+  });
+
+  closeBtn.addEventListener('click', () => closeRingReveal());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeRingReveal(); });
+
+  function closeRingReveal() {
+    overlay.classList.remove('open');
+    box.classList.remove('opened');
+    message.classList.add('hidden');
+  }
+}
+function openRingReveal() {
+  const overlay = document.getElementById('ringOverlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+/* ---------------- SECRET DEVELOPER MODE (type "JIVESH") ---------------- */
+function initDevMode() {
+  const overlay = document.getElementById('devOverlay');
+  const closeBtn = document.getElementById('devClose');
+  if (!overlay) return;
+  const targetWord = 'JIVESH';
+  let typed = '';
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key.length !== 1) return;
+    typed += e.key.toUpperCase();
+    if (typed.length > targetWord.length) typed = typed.slice(-targetWord.length);
+    if (typed === targetWord) {
+      overlay.classList.add('open');
+      typed = '';
+    }
+  });
+
+  closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+}
+
+/* ---------------- FLOATING WISHES ---------------- */
+function initFloatingWishes() {
+  const wish = document.getElementById('floatingWish');
+  const popup = document.getElementById('wishMessagePopup');
+  if (!wish) return;
+
+  const messages = [
+    "You're beautiful.",
+    'I miss you.',
+    'Today is going to be a good day.',
+    "You're stronger than you know.",
+    'I\'m grateful for you.',
+    'Just checking in — I love you.'
+  ];
+
+  function launchWish() {
+    wish.classList.remove('hidden');
+    wish.style.top = 10 + Math.random() * 60 + '%';
+    // Restart the CSS animation
+    wish.style.animation = 'none';
+    void wish.offsetWidth;
+    wish.style.animation = '';
+
+    const handleClick = () => {
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      popup.textContent = '❤️ ' + msg;
+      popup.classList.remove('hidden');
+      wish.classList.add('hidden');
+      wish.removeEventListener('click', handleClick);
+      setTimeout(() => popup.classList.add('hidden'), 3200);
+    };
+    wish.addEventListener('click', handleClick);
+
+    setTimeout(() => {
+      wish.classList.add('hidden');
+      wish.removeEventListener('click', handleClick);
+    }, 9000);
+  }
+
+  setTimeout(launchWish, 8000);
+  setInterval(launchWish, 15000);
+}
+
+/* ---------------- CHOOSE YOUR ENDING + MOVIE CREDITS + STAR NAMING ---------------- */
+function initEndingChoiceAndCredits() {
+  const endingChoice = document.getElementById('endingChoice');
+  const skyScene = document.getElementById('skyScene');
+  const skyEndingText = document.getElementById('skyEndingText');
+  const movieCredits = document.getElementById('movieCredits');
+  const creditsBtn = document.getElementById('skyCreditsBtn');
+  const creditsReplayBtn = document.getElementById('creditsReplayBtn');
+  const starPopup = document.getElementById('starNamePopup');
+  if (!endingChoice) return;
+
+  const endingTexts = {
+    romantic: 'Every star tonight is for you. My favorite person, in my favorite sky.',
+    funny: "Every star tonight is for you — yes, I made a whole website, I'm that dramatic.",
+    emotional: 'Every star tonight is for you. Thank you for staying, for loving, for being you.',
+    party: 'Every star tonight is for you — now let\'s celebrate! 🎉'
+  };
+
+  document.querySelectorAll('.ending-choice-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const ending = btn.dataset.ending;
+      skyEndingText.textContent = endingTexts[ending] || endingTexts.romantic;
+      endingChoice.classList.add('hidden');
+      skyScene.classList.remove('hidden');
+    });
+  });
+
+  // Star naming: click anywhere on the sky scene to "name" the nearest star.
+  skyScene.addEventListener('click', (e) => {
+    if (e.target.closest('.sky-message') || e.target.closest('.star-name-popup')) return;
+    const rect = skyScene.getBoundingClientRect();
+    starPopup.style.left = (e.clientX - rect.left) + 'px';
+    starPopup.style.top = (e.clientY - rect.top) + 'px';
+    starPopup.classList.remove('hidden');
+    clearTimeout(starPopup._hideTimer);
+    starPopup._hideTimer = setTimeout(() => starPopup.classList.add('hidden'), 2600);
+  });
+
+  creditsBtn.addEventListener('click', () => {
+    skyScene.classList.add('hidden');
+    movieCredits.classList.remove('hidden');
+  });
+
+  creditsReplayBtn.addEventListener('click', () => window.location.reload());
 }
