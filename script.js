@@ -1,6 +1,11 @@
+/* =========================================================
+   BIRTHDAY SURPRISE WEBSITE — SCRIPT.JS
+   Modular vanilla JS. Each feature is its own init function.
+   ========================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
   initPreloader();
+  initEpisodeIntro();
   initScrollProgress();
   initBackToTop();
   initAddToCalendar();
@@ -33,6 +38,73 @@ function initPreloader() {
   });
   // Fallback in case 'load' fires slowly or assets are missing
   setTimeout(() => preloader.classList.add('loaded'), 3000);
+}
+
+/* ---------------- K-DRAMA STYLE EPISODE INTRO ---------------- */
+function initEpisodeIntro() {
+  const intro = document.getElementById('episodeIntro');
+  const skipBtn = document.getElementById('episodeSkipBtn');
+  const particlesContainer = document.getElementById('episodeParticles');
+  if (!intro) return;
+
+  let dismissed = false;
+
+  // Drifting light particles, same idea as the hero's floating hearts,
+  // but plain glowing dots to fit the cinematic mood here.
+  if (particlesContainer) {
+    const count = window.innerWidth < 768 ? 14 : 26;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'episode-particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = 6 + Math.random() * 6 + 's';
+      p.style.animationDelay = Math.random() * 5 + 's';
+      particlesContainer.appendChild(p);
+    }
+  }
+
+  function showIntro() {
+    intro.classList.add('show');
+    document.body.style.overflow = 'hidden'; // hold the moment — no scrolling during the intro
+    // A soft rising piano-style sting, timed to land right as the title
+    // scales into view — synthesized, no audio file needed.
+    setTimeout(playEpisodeSting, 1300);
+  }
+
+  function dismissIntro() {
+    if (dismissed) return;
+    dismissed = true;
+    intro.classList.add('hide');
+    intro.classList.remove('show');
+    document.body.style.overflow = '';
+    setTimeout(() => intro.remove(), 1100); // clean up after the fade-out finishes
+  }
+
+  // Bring the intro in right after the preloader clears, so it feels like
+  // the natural next beat rather than competing with it.
+  setTimeout(showIntro, 900);
+
+  // Auto-dismiss after a few seconds, like an opening title card that
+  // naturally cuts to the "show" — but skippable, K-drama-platform style.
+  const autoDismissTimer = setTimeout(dismissIntro, 5200);
+
+  skipBtn.addEventListener('click', () => {
+    clearTimeout(autoDismissTimer);
+    dismissIntro();
+  });
+  intro.addEventListener('click', (e) => {
+    if (e.target === intro) {
+      clearTimeout(autoDismissTimer);
+      dismissIntro();
+    }
+  });
+}
+
+/* A gentle rising piano-style chord, like a soft OST sting under a title card. */
+function playEpisodeSting() {
+  playTone(392, 1.4, 'sine', 0.09);           // G4
+  setTimeout(() => playTone(494, 1.3, 'sine', 0.08), 180);  // B4
+  setTimeout(() => playTone(587, 1.6, 'sine', 0.09), 380);  // D5
 }
 
 /* ---------------- SCROLL PROGRESS BAR ---------------- */
@@ -247,26 +319,43 @@ function initDailyNotes(targetDateStr) {
   // down to the big day. Sized to 18 so it matches the days remaining —
   // if you deploy this earlier/later, adjust the count to match daysLeft
   // at the time you deploy, so the last card lands exactly on July 22.
-  const notes = [
-    'Day 18 to go: Just so you know, you crossed my mind today. Like always.',
-    'Day 17 to go: I hope today treated you gently.',
-    'Day 16 to go: Something about you always makes ordinary days better.',
-    'Day 15 to go: Eighteen days used to feel so far away. Not anymore.',
-    'Day 14 to go: I keep catching myself smiling for no reason. It\'s you.',
-    'Day 13 to go: I\'m already excited for your birthday. Can you tell?',
-    'Day 12 to go: You deserve every good thing headed your way.',
-    'Day 11 to go: Twelve days feels both too long and too short.',
-    'Day 10 to go: I keep thinking about how lucky I am.',
-    'Day 9 to go: Double digits are almost gone. Ten days, then single digits.',
-    'Day 8 to go: One week and a day left. My heart\'s already celebrating.',
-    'Day 7 to go: One week left. Can you feel it getting closer?',
-    'Day 6 to go: You make the wait worth it.',
-    'Day 5 to go: I hope you feel loved today, not just on the day itself.',
-    'Day 4 to go: Almost there. Can you feel the excitement?',
-    'Day 3 to go: Three days. I can barely wait.',
-    'Day 2 to go: So close now. Get ready.',
-    'Day 1 to go: Tomorrow is your day. I hope it\'s everything you deserve.'
-  ];
+ const notes = [
+  "Day 18 💌: Hi Ishu ❤️. Today I just wanted to remind you that no matter how busy life gets, you're always one of my favorite thoughts. Every day brings us one step closer to celebrating you.",
+
+  "Day 17 🌸: I hope today made you smile at least once. And if it didn't, here's a little reminder that someone is always cheering for you from the bottom of his heart.",
+
+  "Day 16 ☀️: Sometimes I catch myself smiling for absolutely no reason... and then I realize I was thinking about you again. That's become my favorite habit.",
+
+  "Day 15 💕: I don't think you realize how much happiness you've quietly brought into my life. Thank you for simply being you.",
+
+  "Day 14 🌷: If I could, I'd pause every beautiful moment we spend together so I could relive it again and again. Every memory with you is special to me.",
+
+  "Day 13 ✨: Your birthday is getting closer, and honestly... I'm probably more excited than you are. I can't wait to see your smile.",
+
+  "Day 12 🌹: You deserve every bit of happiness, every dream coming true, and every reason to smile. I hope this year gives you all of that and even more.",
+
+  "Day 11 💖: Some people come into our lives and change everything without even trying. Thank you for being that person in mine.",
+
+  "Day 10 🎀: Double digits left! Soon it'll be your special day, but honestly, every day feels a little brighter because you're in my life.",
+
+  "Day 9 🌙: No matter how ordinary today feels, remember you're someone incredibly special to me. Never forget that.",
+
+  "Day 8 💞: Just one week and one day left. I'm counting every sunrise because each one brings me closer to celebrating the most beautiful person I know.",
+
+  "Day 7 🎉: One week to go! I hope your heart is as excited as mine because your birthday deserves to be as wonderful as you are.",
+
+  "Day 6 🤍: Thank you for every conversation, every laugh, every little moment you've shared with me. They mean more than you probably know.",
+
+  "Day 5 🌼: I hope today reminded you how amazing you are. And if it didn't, let me do it instead—you truly are one of the best things that has ever happened to me.",
+
+  "Day 4 💝: We're almost there! I can't wait to celebrate the day the world received someone as kind, beautiful, and lovable as you.",
+
+  "Day 3 🥰: Only three days left! I hope these little notes have made you smile because making you happy has always been one of my favorite things.",
+
+  "Day 2 🌺: Tomorrow's almost here. I hope you're ready for a day filled with love, smiles, surprises, and reminders of how deeply you're appreciated.",
+
+  "Day 1 🎂: Tomorrow is finally your day. Sleep well tonight, my love. Tomorrow we'll celebrate not just your birthday, but the beautiful person who makes my world brighter every single day. Happy Birthday in advance, Ishu ❤️."
+];
 
   const { daysLeft } = getDaysUntil(targetDateStr);
   // How many notes should be unlocked right now. Notes unlock one by one,
@@ -711,19 +800,190 @@ function setupLetterRevealStage(onComplete) {
 
 /* ---- Stage 6: Night sky finale with glowing text among stars ---- */
 function setupSkyFinaleStage() {
-  const canvas = document.getElementById('skyCanvas');
-  const ctx = canvas.getContext('2d');
-  const scene = document.getElementById('skyScene');
   const replayBtn = document.getElementById('skyReplayBtn');
-  let stars = [];
-  let chimed = false;
-
   replayBtn.addEventListener('click', () => {
     // Simplest reliable "watch it again": reload the page (keeping the
     // current URL, including ?preview=true if present) so every stage
     // resets to its true starting state.
     window.location.reload();
   });
+
+  // Prefer the 3D parallax starfield if Three.js loaded successfully.
+  // If the CDN failed (no internet, blocked script, etc.), fall back to
+  // the original flat 2D canvas version so the finale never breaks.
+  if (window.THREE) {
+    setupSkyFinale3D();
+  } else {
+    setupSkyFinale2DFallback();
+  }
+}
+
+/* ---- 3D parallax starfield (Three.js) ---- */
+function setupSkyFinale3D() {
+  const canvas = document.getElementById('skyCanvas');
+  const scene3d = document.getElementById('skyScene');
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a0620, 0.035);
+
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+  camera.position.z = 6;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Soft circular sprite so each star glows instead of showing as a hard square pixel.
+  const spriteCanvas = document.createElement('canvas');
+  spriteCanvas.width = 64; spriteCanvas.height = 64;
+  const sctx = spriteCanvas.getContext('2d');
+  const grad = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.4, 'rgba(255,255,255,.6)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  sctx.fillStyle = grad;
+  sctx.fillRect(0, 0, 64, 64);
+  const starTexture = new THREE.CanvasTexture(spriteCanvas);
+
+  // Builds one star layer with mixed colors from the site's palette
+  // (white / gold / pink / soft purple) for a richer look than plain white.
+  function buildStarLayer(count, spread, depthOffset, sizeRange) {
+    const palette = [
+      [1, 1, 1],          // white
+      [0.96, 0.78, 0.4],  // gold
+      [1, 0.44, 0.65],    // pink
+      [0.56, 0.44, 1]     // purple
+    ];
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * spread;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * spread;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * spread * 0.6 + depthOffset;
+
+      const c = palette[Math.floor(Math.random() * palette.length)];
+      colors[i * 3] = c[0]; colors[i * 3 + 1] = c[1]; colors[i * 3 + 2] = c[2];
+      sizes[i] = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    // Note: base PointsMaterial uses one fixed size for the whole layer;
+    // per-star size variation isn't used here to keep this stable across
+    // older WebGL implementations, but varying layer sizes below still
+    // gives a good sense of depth.
+    const material = new THREE.PointsMaterial({
+      size: sizeRange[1],
+      map: starTexture,
+      transparent: true,
+      depthWrite: false,
+      vertexColors: true,
+      opacity: 0.95,
+      sizeAttenuation: true
+    });
+    return new THREE.Points(geometry, material);
+  }
+
+  const farField = buildStarLayer(1400, 45, -6, [0.09, 0.09]);
+  const midField = buildStarLayer(500, 30, 0, [0.14, 0.14]);
+  const nearField = buildStarLayer(180, 18, 6, [0.22, 0.22]);
+  scene.add(farField, midField, nearField);
+
+  // A few brighter "shooting" stars that occasionally streak across.
+  const shootingStars = [];
+  function spawnShootingStar() {
+    const geo = new THREE.BufferGeometry();
+    const start = new THREE.Vector3((Math.random() - 0.5) * 20, 8 + Math.random() * 4, (Math.random() - 0.5) * 10);
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([start.x, start.y, start.z]), 3));
+    const mat = new THREE.PointsMaterial({ size: 0.3, map: starTexture, color: 0xffffff, transparent: true, depthWrite: false });
+    const point = new THREE.Points(geo, mat);
+    scene.add(point);
+    shootingStars.push({ point, vx: -0.05 - Math.random() * 0.05, vy: -0.09 - Math.random() * 0.05, life: 1 });
+  }
+  setInterval(() => { if (Math.random() < 0.6) spawnShootingStar(); }, 2200);
+
+  let mouseX = 0, mouseY = 0;
+  let targetRotY = 0, targetRotX = 0;
+
+  function onPointerMove(clientX, clientY) {
+    const rect = scene3d.getBoundingClientRect();
+    mouseX = ((clientX - rect.left) / rect.width) * 2 - 1;
+    mouseY = ((clientY - rect.top) / rect.height) * 2 - 1;
+    targetRotY = mouseX * 0.3;
+    targetRotX = mouseY * 0.18;
+  }
+  scene3d.addEventListener('mousemove', (e) => onPointerMove(e.clientX, e.clientY));
+  scene3d.addEventListener('touchmove', (e) => {
+    if (e.touches[0]) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  function resize() {
+    const w = scene3d.clientWidth;
+    const h = scene3d.clientHeight;
+    if (w === 0 || h === 0) return; // still hidden — nothing to size yet
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+
+  // The key fix: this stage starts hidden (display:none) until the visitor
+  // reaches it, so at setup time the container has zero width/height and a
+  // one-time resize() call would size the renderer to nothing. A
+  // ResizeObserver instead fires automatically the moment the container's
+  // real size becomes available (i.e. when the stage's "active" class is
+  // added and it becomes visible), so the scene sizes correctly whenever
+  // that actually happens — not just once at page load.
+  const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(scene3d);
+  window.addEventListener('resize', resize);
+  resize();
+
+  function animate() {
+    const t = performance.now() * 0.001;
+
+    // Smooth parallax toward the pointer, each layer moving a different
+    // amount so the layers feel like they're at different distances,
+    // plus a slow constant drift so it's never fully static.
+    farField.rotation.y += (targetRotY * 0.6 - farField.rotation.y) * 0.02 + 0.0003;
+    farField.rotation.x += (targetRotX * 0.6 - farField.rotation.x) * 0.02;
+    midField.rotation.y += (targetRotY - midField.rotation.y) * 0.03 + 0.0006;
+    midField.rotation.x += (targetRotX - midField.rotation.x) * 0.03;
+    nearField.rotation.y += (targetRotY * 1.7 - nearField.rotation.y) * 0.045 + 0.001;
+    nearField.rotation.x += (targetRotX * 1.7 - nearField.rotation.x) * 0.045;
+
+    // Gentle overall twinkle by pulsing opacity slightly over time.
+    const pulse = 0.85 + 0.15 * Math.sin(t * 0.8);
+    midField.material.opacity = pulse;
+
+    // Animate any active shooting stars, removing them once they fade out.
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+      const s = shootingStars[i];
+      const pos = s.point.geometry.attributes.position;
+      pos.array[0] += s.vx;
+      pos.array[1] += s.vy;
+      pos.needsUpdate = true;
+      s.life -= 0.012;
+      s.point.material.opacity = Math.max(0, s.life);
+      if (s.life <= 0) {
+        scene.remove(s.point);
+        shootingStars.splice(i, 1);
+      }
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+/* ---- 2D canvas fallback (used automatically if Three.js fails to load) ---- */
+function setupSkyFinale2DFallback() {
+  const canvas = document.getElementById('skyCanvas');
+  const ctx = canvas.getContext('2d');
+  const scene = document.getElementById('skyScene');
+  let stars = [];
 
   function resize() {
     canvas.width = scene.clientWidth;
