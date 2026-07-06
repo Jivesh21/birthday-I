@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -592,11 +592,17 @@ Jivesh ❤️</span></p>
   </div>
 </div>
 
-<!-- Floating wishes — a paper plane drifts across periodically, site-wide -->
-<div class="floating-wish hidden" id="floatingWish">
-  <span class="wish-plane">✈️</span>
+<!-- Static plane, fixed near the top, continuously puffing smoke with a message -->
+<div class="sky-plane-static" id="skyPlaneStatic">
+  <div class="plane-smoke-trail">
+    <span class="smoke-puff"></span>
+    <span class="smoke-puff"></span>
+    <span class="smoke-puff"></span>
+    <span class="smoke-puff"></span>
+  </div>
+  <span class="plane-icon">✈️</span>
+  <p class="plane-message">I love you, Ishu ❤️</p>
 </div>
-<div class="wish-message-popup hidden" id="wishMessagePopup"></div>
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
@@ -608,6 +614,6 @@ Jivesh ❤️</span></p>
      If it fails to load (e.g. no internet at that moment), script.js falls
      back to the original flat 2D canvas starfield automatically. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="script.js?v=16"></script>
+<script src="script.js?v=17"></script>
 </body>
 </html>
